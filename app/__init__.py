@@ -24,12 +24,14 @@ def create_app(config: dict | None = None) -> Flask:
     from app.cli import register_commands
     from app.admin import bp as admin_bp
     from app.auth import bp as auth_bp
+    from app.cron import bp as cron_bp
     from app.student import bp as student_bp
 
     register_commands(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(cron_bp)
 
     admin_login = app.config.get("ADMIN_LOGIN")
     admin_password = app.config.get("ADMIN_PASSWORD")
