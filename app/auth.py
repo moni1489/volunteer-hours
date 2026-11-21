@@ -15,6 +15,8 @@ bp = Blueprint("auth", __name__)
 
 CODE_TTL = timedelta(minutes=10)
 MAX_ATTEMPTS = 5
+MIN_CODE_INTERVAL = timedelta(seconds=60)
+MAX_CODES_PER_HOUR = 5
 PENDING_KEY = "login_email"
 
 
@@ -29,15 +31,34 @@ def find_student(email: str) -> Student | None:
     return db.session.scalar(select(Student).where(func.lower(Student.email) == email))
 
 
+def _may_issue_code(email: str) -> bool:
+    """Rate limit: at most one code per minute and MAX_CODES_PER_HOUR per hour per address."""
+    now = _utcnow()
+    last_expiry = db.session.scalar(select(func.max(LoginCode.expires_at)).where(LoginCode.email == email))
+    if last_expiry is not None and last_expiry - CODE_TTL > now - MIN_CODE_INTERVAL:
+        return False
+    # A code issued at time T has expires_at = T + CODE_TTL, so "issued within the last hour"
+    # means expires_at > now - 1h + CODE_TTL.
+    recent = db.session.scalar(
+        select(func.count(LoginCode.id)).where(
+            LoginCode.email == email,
+            LoginCode.expires_at > now - timedelta(hours=1) + CODE_TTL,
+        )
+    )
+    return recent < MAX_CODES_PER_HOUR
+
+
 def issue_code(email: str) -> None:
     """Create a new one-time code for a student on the list and email it.
 
-    Does nothing if the email is not on the student list.
+    Does nothing if the email is not on the student list or the rate limit is reached.
     """
     student = find_student(email)
     if student is None:
         return
     email = normalize_email(email)
+    if not _may_issue_code(email):
+        return
 
     LoginCode.query.filter_by(email=email, used=False).update({"used": True})
     code = f"{secrets.randbelow(10**6):06d}"

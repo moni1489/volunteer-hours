@@ -1,3 +1,4 @@
+from datetime import timedelta
 from datetime import datetime, timedelta, timezone
 from unittest import mock
 
@@ -62,6 +63,10 @@ def test_new_code_invalidates_older_unused_codes(app, student, mail):
     issue_code("test1@example.com")
     first = _sent_code(mail)
     mail.reset_mock()
+    # Simulate that more than a minute has passed since the first code (rate limit).
+    for row in LoginCode.query.all():
+        row.expires_at = row.expires_at - timedelta(minutes=2)
+    db.session.commit()
     issue_code("test1@example.com")
     second = _sent_code(mail)
     rows = _codes()
