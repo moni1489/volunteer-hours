@@ -1,78 +1,61 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Проверка записей</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #fff; color: #111; }
-    main { max-width: 900px; margin: 24px auto; }
-    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
-    .flash { background: #eef6ee; padding: 8px 12px; margin-bottom: 12px; }
-    .muted { color: #666; font-size: 0.9em; }
-    form.inline { display: inline-block; margin: 4px 0; }
-    input, select, textarea { font-size: 15px; padding: 6px; box-sizing: border-box; max-width: 100%; }
-    button, a.button { padding: 8px 12px; font-size: 15px; cursor: pointer; }
-    @media (max-width: 600px) {
-      table, thead, tbody, tr, td, th { display: block; }
-      thead { display: none; }
-      td { border-bottom: none; padding: 4px 0; }
-      tr { border-bottom: 1px solid #ddd; padding: 8px 0; }
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Проверка записей</h1>
-    <p><a href="{{ url_for('admin.logout') }}">Выйти</a></p>
+{% extends "base.html" %}
+{% block title %}Проверка записей{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Проверка записей</h1>
+  <a href="{{ url_for('admin.logout') }}">Выйти</a>
+</div>
 
-    {% with messages = get_flashed_messages() %}
-      {% for message in messages %}<p class="flash">{{ message }}</p>{% endfor %}
-    {% endwith %}
+{% with messages = get_flashed_messages() %}
+  {% for message in messages %}<p class="flash">{{ message }}</p>{% endfor %}
+{% endwith %}
 
-    <form method="get" action="{{ url_for('admin.index') }}">
+<div class="card">
+  <form class="filter" method="get" action="{{ url_for('admin.index') }}">
+    <div>
       <label for="class">Класс</label>
       <input id="class" name="class" type="text" value="{{ class_name }}">
-      <button type="submit">Фильтровать</button>
-      {% if class_name %}<a href="{{ url_for('admin.index') }}">Сбросить</a>{% endif %}
-    </form>
+    </div>
+    <button type="submit" class="btn-primary">Фильтровать</button>
+    {% if class_name %}<a class="btn" href="{{ url_for('admin.index') }}">Сбросить</a>{% endif %}
+  </form>
+</div>
 
-    {% if rows %}
-    <table>
-      <thead>
-        <tr><th>Ученик</th><th>Класс</th><th>Период</th><th>Описание</th><th>Часы</th><th>Статус</th><th>Решение</th></tr>
-      </thead>
-      <tbody>
-        {% for entry, student in rows %}
-        <tr>
-          <td>{{ student.full_name }}</td>
-          <td>{{ student.class_name }}</td>
-          <td>{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
-          <td>
-            {{ entry.description }}
-            {% if entry.admin_comment %}<div class="muted">Комментарий: {{ entry.admin_comment }}</div>{% endif %}
-          </td>
-          <td>{{ entry.hours }}</td>
-          <td>{{ {'pending': 'на проверке', 'approved': 'подтверждено', 'rejected': 'отклонено'}.get(entry.status, entry.status) }}</td>
-          <td>
-            {% if entry.status == 'pending' %}
-            <form class="inline" method="post" action="{{ url_for('admin.decide_entry', entry_id=entry.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="class" value="{{ class_name }}">
-              <input type="text" name="comment" placeholder="Комментарий" maxlength="500">
-              <button type="submit" name="decision" value="approved">Подтвердить</button>
-              <button type="submit" name="decision" value="rejected">Отклонить</button>
-            </form>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>Записей нет.</p>
-    {% endif %}
-  </main>
-</body>
-</html>
+{% if rows %}
+<div class="card">
+  <table class="data">
+    <thead>
+      <tr><th>Ученик</th><th>Класс</th><th>Период</th><th>Описание</th><th>Часы</th><th>Статус</th><th>Решение</th></tr>
+    </thead>
+    <tbody>
+      {% for entry, student in rows %}
+      <tr>
+        <td data-label="Ученик">{{ student.full_name }}</td>
+        <td data-label="Класс">{{ student.class_name }}</td>
+        <td data-label="Период">{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
+        <td data-label="Описание">
+          {{ entry.description }}
+          {% if entry.admin_comment %}<div class="muted">Комментарий: {{ entry.admin_comment }}</div>{% endif %}
+        </td>
+        <td data-label="Часы">{{ entry.hours }}</td>
+        <td data-label="Статус"><span class="badge badge-{{ entry.status }}">{{ {'pending': 'на проверке', 'approved': 'подтверждено', 'rejected': 'отклонено'}.get(entry.status, entry.status) }}</span></td>
+        <td>
+          {% if entry.status == 'pending' %}
+          <form class="inline" method="post" action="{{ url_for('admin.decide_entry', entry_id=entry.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="class" value="{{ class_name }}">
+            <input type="text" name="comment" placeholder="Комментарий" maxlength="500">
+            <button type="submit" name="decision" value="approved" class="btn-small btn-success">Подтвердить</button>
+            <button type="submit" name="decision" value="rejected" class="btn-small btn-danger">Отклонить</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="card"><p class="muted">Записей нет.</p></div>
+{% endif %}
+{% endblock %}

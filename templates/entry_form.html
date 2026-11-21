@@ -1,43 +1,31 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ 'Изменить запись' if entry else 'Новая запись' }}</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #fff; color: #111; }
-    main { max-width: 420px; margin: 24px auto; }
-    input, textarea { width: 100%; box-sizing: border-box; padding: 10px; font-size: 16px; margin: 6px 0 4px; }
-    textarea { min-height: 100px; }
-    button, a.button { padding: 10px 16px; font-size: 16px; cursor: pointer; }
-    .error { color: #b00020; font-size: 0.9em; margin: 0 0 10px; }
-    label { display: block; margin-top: 12px; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>{{ 'Изменить запись' if entry else 'Новая запись' }}</h1>
-    <form method="post" action="{{ action }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="date_start">Начало периода</label>
-      <input id="date_start" name="date_start" type="date" required value="{{ values.date_start }}">
-      {% if errors.date_start %}<p class="error">{{ errors.date_start }}</p>{% endif %}
+{% extends "base.html" %}
+{% block title %}{{ 'Изменить запись' if entry else 'Новая запись' }}{% endblock %}
+{% block page_class %}narrow{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ 'Изменить запись' if entry else 'Новая запись' }}</h1>
+  <form method="post" action="{{ action }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="date_start">Начало периода</label>
+    <input id="date_start" name="date_start" type="date" required value="{{ values.date_start }}">
+    {% if errors.date_start %}<p class="error">{{ errors.date_start }}</p>{% endif %}
 
-      <label for="date_end">Конец периода</label>
-      <input id="date_end" name="date_end" type="date" required value="{{ values.date_end }}">
-      {% if errors.date_end %}<p class="error">{{ errors.date_end }}</p>{% endif %}
+    <label for="date_end">Конец периода</label>
+    <input id="date_end" name="date_end" type="date" required value="{{ values.date_end }}">
+    {% if errors.date_end %}<p class="error">{{ errors.date_end }}</p>{% endif %}
 
-      <label for="description">Описание работы (до 500 символов)</label>
-      <textarea id="description" name="description" required maxlength="500">{{ values.description }}</textarea>
-      {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
+    <label for="description">Описание работы (до 500 символов)</label>
+    <textarea id="description" name="description" required maxlength="500">{{ values.description }}</textarea>
+    {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
 
-      <label for="hours">Часы</label>
-      <input id="hours" name="hours" type="text" inputmode="decimal" required value="{{ values.hours }}">
-      {% if errors.hours %}<p class="error">{{ errors.hours }}</p>{% endif %}
+    <label for="hours">Часы</label>
+    <input id="hours" name="hours" type="text" inputmode="decimal" required value="{{ values.hours }}">
+    {% if errors.hours %}<p class="error">{{ errors.hours }}</p>{% endif %}
 
-      <button type="submit">Сохранить</button>
-      <a class="button" href="{{ url_for('student.cabinet') }}">Отмена</a>
-    </form>
-  </main>
-</body>
-</html>
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Сохранить</button>
+      <a class="btn" href="{{ url_for('student.cabinet') }}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

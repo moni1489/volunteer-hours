@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %}</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #0e131c;
+      --surface: #171f2d;
+      --surface-2: #1f2a3c;
+      --border: #2c3a52;
+      --text: #e7edf7;
+      --muted: #97a6bd;
+      --primary: #7c93ff;
+      --primary-hover: #95a8ff;
+      --primary-text: #0b1020;
+      --danger: #ff7a88;
+      --danger-bg: #3b1e28;
+      --success: #5fdcb0;
+      --success-bg: #16382e;
+      --warning: #ffc266;
+      --warning-bg: #3d3014;
+      --ring: rgba(124, 147, 255, 0.45);
+      --radius: 16px;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      --brand-from: #5b4bdb;
+      --brand-to: #14a09a;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f2f5fb;
+        --surface: #ffffff;
+        --surface-2: #f4f6fc;
+        --border: #dbe2ef;
+        --text: #1a2333;
+        --muted: #5d6b84;
+        --primary: #4a63e0;
+        --primary-hover: #3a52c8;
+        --primary-text: #ffffff;
+        --danger: #c42a3c;
+        --danger-bg: #fde7ea;
+        --success: #13735a;
+        --success-bg: #d9f4ea;
+        --warning: #955f00;
+        --warning-bg: #fff1d1;
+        --ring: rgba(74, 99, 224, 0.35);
+        --shadow: 0 10px 28px rgba(30, 40, 70, 0.08);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--primary); }
+    a:hover { color: var(--primary-hover); }
+    :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+
+    .topbar {
+      background: linear-gradient(120deg, var(--brand-from), var(--brand-to));
+      color: #fff;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .topbar-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 12px; min-height: 28px; }
+    .brand-mark {
+      width: 28px; height: 28px; border-radius: 9px;
+      background: rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+    }
+
+    main.page { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    main.page.narrow { max-width: 440px; }
+    .page-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+    h1 { font-size: 1.6rem; line-height: 1.25; margin: 4px 0 16px; letter-spacing: -0.01em; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    .muted { color: var(--muted); font-size: 0.92em; }
+    .flash {
+      background: var(--success-bg);
+      color: var(--success);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 0 0 16px;
+      font-weight: 500;
+    }
+    .error { color: var(--danger); font-size: 0.92em; margin: 4px 0 10px; }
+    .total { font-size: 1.1rem; margin: 0 0 16px; }
+    .total strong { font-size: 1.6rem; color: var(--success); margin-left: 4px; }
+
+    label { display: block; margin-top: 16px; font-weight: 600; font-size: 0.95rem; }
+    input, textarea, select {
+      display: block;
+      width: 100%;
+      font: inherit;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 6px 0 4px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+    input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.8; }
+    textarea { min-height: 110px; resize: vertical; }
+    input[type="date"] { min-height: 46px; }
+
+    .btn, button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.2;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+    }
+    .btn:hover, button:hover { border-color: var(--primary); }
+    .btn:active, button:active { transform: translateY(1px); }
+    .btn-primary, button.btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--primary-text);
+      box-shadow: 0 6px 18px var(--ring);
+    }
+    .btn-primary:hover, button.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: var(--primary-text); }
+    .btn-block { width: 100%; margin-top: 16px; }
+    .btn-success { background: var(--success-bg); color: var(--success); border-color: transparent; }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
+    .btn-small { padding: 6px 12px; font-size: 14px; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-pending { background: var(--warning-bg); color: var(--warning); }
+    .badge-approved { background: var(--success-bg); color: var(--success); }
+    .badge-rejected { background: var(--danger-bg); color: var(--danger); }
+
+    form.inline { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; }
+    form.inline input[type="text"] { width: auto; flex: 1 1 150px; margin: 0; }
+    form.filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+    form.filter label { margin-top: 0; }
+    form.filter input { width: auto; min-width: 180px; margin: 6px 0 0; }
+
+    table.data { width: 100%; border-collapse: collapse; }
+    table.data th, table.data td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    table.data th { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+    table.data tbody tr:last-child td { border-bottom: none; }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .code-input { letter-spacing: 6px; font-size: 20px; text-align: center; }
+
+    @media (max-width: 640px) {
+      main.page { padding: 0 16px; margin: 16px auto; }
+      .card { padding: 16px; }
+      table.data, table.data thead, table.data tbody, table.data tr, table.data td { display: block; width: 100%; }
+      table.data thead { display: none; }
+      table.data tbody tr {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+      }
+      table.data td { border: none; padding: 5px 0; }
+      table.data td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      form.inline input[type="text"] { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-mark" aria-hidden="true"></div>
+    </div>
+  </header>
+  <main class="page {% block page_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
