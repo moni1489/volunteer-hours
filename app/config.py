@@ -1,5 +1,7 @@
 import os
 
+DEV_SECRET_KEY = "dev-only-not-for-production"
+
 
 def _database_url() -> str:
     url = os.environ.get("DATABASE_URL", "sqlite:///dev.db")
@@ -12,7 +14,7 @@ def _database_url() -> str:
 class Config:
     SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-not-for-production")
+    SECRET_KEY = os.environ.get("SECRET_KEY", DEV_SECRET_KEY)
     SMTP_HOST = os.environ.get("SMTP_HOST", "")
     SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
     SMTP_USER = os.environ.get("SMTP_USER", "")
