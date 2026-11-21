@@ -17,6 +17,9 @@ def create_app(config: dict | None = None) -> Flask:
         raise RuntimeError("SECRET_KEY must be set in the environment outside TESTING mode")
     db.init_app(app)
     migrate.init_app(app, db)
+    from app.cli import register_commands
+
+    register_commands(app)
     return app
 
 
