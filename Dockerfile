@@ -1,0 +1,20 @@
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app ./app
+COPY templates ./templates
+COPY migrations ./migrations
+
+# Run as a non-root user.
+RUN useradd --create-home appuser
+USER appuser
+
+# Render sets PORT; default to 8000 locally.
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8000} 'app:create_app()'"]
