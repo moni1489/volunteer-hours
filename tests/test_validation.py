@@ -9,14 +9,14 @@ TODAY = date(2026, 11, 21)
 GOOD_DESC = "Помощь в библиотеке"
 
 
-@pytest.mark.parametrize("hours", ["0", "0.3", "13", "2.25", "12.5", "-1", "abc", "", "NaN", "Infinity"])
+@pytest.mark.parametrize("hours", ["0", "0.3", "200.5", "2.25", "201", "-1", "abc", "", "NaN", "Infinity"])
 def test_rejects_invalid_hours(hours):
     cleaned, errors = validate_entry("2026-11-20", "2026-11-20", GOOD_DESC, hours, TODAY)
     assert "hours" in errors
     assert "hours" not in cleaned
 
 
-@pytest.mark.parametrize("hours, expected", [("0.5", Decimal("0.5")), ("12", Decimal("12.0")), (" 1.5 ", Decimal("1.5"))])
+@pytest.mark.parametrize("hours, expected", [("0.5", Decimal("0.5")), ("12", Decimal("12.0")), ("200", Decimal("200.0")), (" 1.5 ", Decimal("1.5"))])
 def test_accepts_valid_hours(hours, expected):
     cleaned, errors = validate_entry("2026-11-20", "2026-11-20", GOOD_DESC, hours, TODAY)
     assert errors == {}
