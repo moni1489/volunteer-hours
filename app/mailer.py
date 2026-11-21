@@ -45,9 +45,14 @@ def _send_via_brevo(api_key: str, to: str, code: str) -> None:
         headers={"api-key": api_key, "content-type": "application/json", "accept": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        if resp.status not in (200, 201, 202):
-            raise RuntimeError(f"Brevo API returned {resp.status}")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            if resp.status not in (200, 201, 202):
+                raise RuntimeError(f"Brevo API returned {resp.status}")
+    except urllib.error.HTTPError as exc:
+        # Include Brevo's own message in the log so the cause is visible on Render.
+        detail = exc.read().decode("utf-8", "replace")[:300]
+        raise RuntimeError(f"Brevo API error {exc.code}: {detail}") from None
 
 
 def _send_via_smtp(cfg, to: str, code: str) -> None:
