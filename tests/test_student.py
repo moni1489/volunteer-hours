@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 from sqlalchemy import select
 
-from app import db
+from app import create_app, db
 from app.models import Student, VolunteerEntry
 
 
@@ -176,3 +176,22 @@ def test_delete_pending_entry_works(client, student_a):
     resp = client.post(f"/entries/{e.id}/delete")
     assert resp.status_code == 302
     assert db.session.get(VolunteerEntry, e.id) is None
+
+
+def test_post_without_csrf_token_is_rejected_with_400():
+    app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite://", "WTF_CSRF_ENABLED": True})
+    with app.app_context():
+        db.create_all()
+        try:
+            s = Student(full_name="Ученик Вв", class_name="10A", email="v@example.com")
+            db.session.add(s)
+            db.session.commit()
+            client = app.test_client()
+            with client.session_transaction() as sess:
+                sess["student_id"] = s.id
+            resp = client.post("/entries/new", data=_valid_form())
+            assert resp.status_code == 400
+            assert db.session.scalars(select(VolunteerEntry)).all() == []
+        finally:
+            db.session.remove()
+            db.drop_all()

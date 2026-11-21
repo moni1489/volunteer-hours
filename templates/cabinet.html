@@ -48,6 +48,7 @@
             {% if entry.status == 'pending' %}
               <a href="{{ url_for('student.edit_entry', entry_id=entry.id) }}">Изменить</a>
               <form class="inline" method="post" action="{{ url_for('student.delete_entry', entry_id=entry.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit">Удалить</button>
               </form>
             {% endif %}

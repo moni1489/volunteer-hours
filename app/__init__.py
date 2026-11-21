@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 
 from app.config import DEV_SECRET_KEY, Config
 
 db = SQLAlchemy()
 migrate = Migrate()
+csrf = CSRFProtect()
 
 
 def create_app(config: dict | None = None) -> Flask:
@@ -18,6 +20,7 @@ def create_app(config: dict | None = None) -> Flask:
         raise RuntimeError("SECRET_KEY must be set in the environment outside TESTING mode")
     db.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)
     from app.cli import register_commands
     from app.auth import bp as auth_bp
     from app.student import bp as student_bp

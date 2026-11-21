@@ -17,6 +17,7 @@
     <h1>Вход ученика</h1>
     {% if error %}<p class="error">{{ error }}</p>{% endif %}
     <form method="post" action="{{ url_for('auth.login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label for="email">Школьный email</label>
       <input id="email" name="email" type="email" required autocomplete="email">
       <button type="submit">Получить код</button>

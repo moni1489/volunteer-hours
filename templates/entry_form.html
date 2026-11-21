@@ -18,6 +18,7 @@
   <main>
     <h1>{{ 'Изменить запись' if entry else 'Новая запись' }}</h1>
     <form method="post" action="{{ action }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label for="date">Дата</label>
       <input id="date" name="date" type="date" required value="{{ values.date }}">
       {% if errors.date %}<p class="error">{{ errors.date }}</p>{% endif %}
