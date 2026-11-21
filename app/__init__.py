@@ -27,7 +27,11 @@ def create_app(config: dict | None = None) -> Flask:
     from app.cron import bp as cron_bp
     from app.student import bp as student_bp
 
+    from app.i18n import bp as i18n_bp, translate
+
+    app.jinja_env.globals["_"] = translate
     register_commands(app)
+    app.register_blueprint(i18n_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(admin_bp)

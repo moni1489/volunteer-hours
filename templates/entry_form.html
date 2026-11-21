@@ -1,30 +1,30 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Изменить запись' if entry else 'Новая запись' }}{% endblock %}
+{% block title %}{{ _('entry.edit_title') if entry else _('entry.new_title') }}{% endblock %}
 {% block page_class %}narrow{% endblock %}
 {% block content %}
 <div class="card">
-  <h1>{{ 'Изменить запись' if entry else 'Новая запись' }}</h1>
+  <h1>{{ _('entry.edit_title') if entry else _('entry.new_title') }}</h1>
   <form method="post" action="{{ action }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label for="date_start">Начало периода</label>
+    <label for="date_start">{{ _("entry.start") }}</label>
     <input id="date_start" name="date_start" type="date" required value="{{ values.date_start }}">
     {% if errors.date_start %}<p class="error">{{ errors.date_start }}</p>{% endif %}
 
-    <label for="date_end">Конец периода</label>
+    <label for="date_end">{{ _("entry.end") }}</label>
     <input id="date_end" name="date_end" type="date" required value="{{ values.date_end }}">
     {% if errors.date_end %}<p class="error">{{ errors.date_end }}</p>{% endif %}
 
-    <label for="description">Описание работы (до 500 символов)</label>
+    <label for="description">{{ _("entry.description") }}</label>
     <textarea id="description" name="description" required maxlength="500">{{ values.description }}</textarea>
     {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
 
-    <label for="hours">Часы</label>
+    <label for="hours">{{ _("table.hours") }}</label>
     <input id="hours" name="hours" type="text" inputmode="decimal" required value="{{ values.hours }}">
     {% if errors.hours %}<p class="error">{{ errors.hours }}</p>{% endif %}
 
     <div class="form-actions">
-      <button type="submit" class="btn-primary">Сохранить</button>
-      <a class="btn" href="{{ url_for('student.cabinet') }}">Отмена</a>
+      <button type="submit" class="btn-primary">{{ _("action.save") }}</button>
+      <a class="btn" href="{{ url_for('student.cabinet') }}">{{ _("action.cancel") }}</a>
     </div>
   </form>
 </div>

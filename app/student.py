@@ -6,13 +6,12 @@ from sqlalchemy import select
 
 from app import db
 from app.auth import student_required
+from app.i18n import translate as _
 from app.models import Student, VolunteerEntry
 from app.validation import validate_entry
 
 bp = Blueprint("student", __name__)
 
-NOT_EDITABLE = "Эту запись нельзя изменить или удалить: изменять можно только записи на проверке."
-NOT_EDITABLE_APPROVED = "Подтверждённую запись нельзя изменить или удалить."
 TENTH = Decimal("0.1")
 
 
@@ -39,7 +38,7 @@ def _form_values(form) -> dict:
 
 
 def _not_editable_message(entry: VolunteerEntry) -> str:
-    return NOT_EDITABLE_APPROVED if entry.status == "approved" else NOT_EDITABLE
+    return _("flash.not_editable_approved") if entry.status == "approved" else _("flash.not_editable")
 
 
 @bp.route("/")
@@ -91,7 +90,7 @@ def new_entry():
                 )
             )
             db.session.commit()
-            flash("Запись добавлена и отправлена на проверку.")
+            flash(_("flash.added"))
             return redirect(url_for("student.cabinet"))
     return render_template(
         "entry_form.html",
@@ -128,7 +127,7 @@ def edit_entry(entry_id: int):
             entry.description = cleaned["description"]
             entry.hours = cleaned["hours"].quantize(TENTH)
             db.session.commit()
-            flash("Запись обновлена.")
+            flash(_("flash.updated"))
             return redirect(url_for("student.cabinet"))
     return render_template(
         "entry_form.html",
@@ -148,5 +147,5 @@ def delete_entry(entry_id: int):
         return redirect(url_for("student.cabinet"))
     db.session.delete(entry)
     db.session.commit()
-    flash("Запись удалена.")
+    flash(_("flash.deleted"))
     return redirect(url_for("student.cabinet"))

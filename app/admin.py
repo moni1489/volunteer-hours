@@ -5,14 +5,12 @@ from flask import Blueprint, abort, flash, redirect, render_template, request, s
 from sqlalchemy import select
 
 from app import db
+from app.i18n import translate as _
 from app.models import Admin, Student, VolunteerEntry, _utcnow
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 ADMIN_KEY = "admin_id"
-BAD_LOGIN = "Неверный логин или пароль."
-NOT_PENDING = "Запись уже проверена и не может быть изменена."
-BAD_DECISION = "Выберите решение: подтвердить или отклонить."
 DECISIONS = ("approved", "rejected")
 
 
@@ -30,15 +28,15 @@ def decide(entry_id: int, decision: str, comment: str | None, admin_id: int) -> 
     """Approve or reject a pending entry.
 
     Raises LookupError if the entry does not exist and ValueError if the decision is unknown
-    or the entry is not pending.
+    or the entry is not pending. The ValueError message is a translation key.
     """
     if decision not in DECISIONS:
-        raise ValueError(BAD_DECISION)
+        raise ValueError("err.bad_decision")
     entry = db.session.get(VolunteerEntry, entry_id)
     if entry is None:
         raise LookupError(f"volunteer entry {entry_id} not found")
     if entry.status != "pending":
-        raise ValueError(NOT_PENDING)
+        raise ValueError("err.not_pending")
     entry.status = decision
     entry.admin_comment = (comment or "").strip() or None
     entry.decided_at = _utcnow()
@@ -55,7 +53,7 @@ def login():
     password = request.form.get("password") or ""
     admin = db.session.scalar(select(Admin).where(Admin.login == login_value)) if login_value else None
     if admin is None or not bcrypt.checkpw(password.encode(), admin.password_hash.encode()):
-        return render_template("admin_login.html", error=BAD_LOGIN)
+        return render_template("admin_login.html", error=_("admin_login.bad"))
 
     # Keep the student session (if any) untouched; admin access is a separate key.
     session[ADMIN_KEY] = admin.id
@@ -96,8 +94,8 @@ def decide_entry(entry_id: int):
             session[ADMIN_KEY],
         )
     except ValueError as exc:
-        flash(f"Ошибка: {exc}")
+        flash(f"{_('flash.error')}: {_(str(exc))}")
     else:
-        flash("Решение сохранено.")
+        flash(_("flash.decision_saved"))
     class_name = (request.form.get("class") or "").strip()
     return redirect(url_for("admin.index", **({"class": class_name} if class_name else {})))

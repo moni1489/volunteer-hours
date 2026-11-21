@@ -8,6 +8,7 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 from sqlalchemy import func, select
 
 from app import db, mailer
+from app.i18n import translate as _
 from app.models import LoginCode, Student, _utcnow
 
 bp = Blueprint("auth", __name__)
@@ -15,9 +16,6 @@ bp = Blueprint("auth", __name__)
 CODE_TTL = timedelta(minutes=10)
 MAX_ATTEMPTS = 5
 PENDING_KEY = "login_email"
-
-NOT_ON_LIST = "вас нет в списке, обратитесь к координатору"
-BAD_CODE = "Неверный или просроченный код. Запросите новый код на странице входа."
 
 
 def normalize_email(email: str) -> str:
@@ -91,7 +89,7 @@ def login():
     email = normalize_email(request.form.get("email", ""))
     if find_student(email) is None:
         session.pop(PENDING_KEY, None)
-        return render_template("login.html", error=NOT_ON_LIST)
+        return render_template("login.html", error=_("login.not_on_list"))
 
     issue_code(email)
     session[PENDING_KEY] = email
@@ -110,9 +108,13 @@ def login_code():
     code = request.form.get("code", "").strip()
     student = find_student(email)
     if not re.fullmatch(r"\d{6}", code) or student is None or not verify_code(email, code):
-        return render_template("login_code.html", error=BAD_CODE, email=email)
+        return render_template("login_code.html", error=_("code.bad"), email=email)
 
+    # Keep the chosen interface language across the session reset.
+    lang = session.get("lang")
     session.clear()
+    if lang:
+        session["lang"] = lang
     session["student_id"] = student.id
     return redirect("/")
 

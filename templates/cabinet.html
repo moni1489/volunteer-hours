@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Кабинет ученика{% endblock %}
+{% block title %}{{ _("cabinet.title") }}{% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>Кабинет ученика</h1>
-  <a href="{{ url_for('auth.logout') }}">Выйти</a>
+  <h1>{{ _("cabinet.title") }}</h1>
+  <a href="{{ url_for('auth.logout') }}">{{ _("nav.logout") }}</a>
 </div>
 
 {% with messages = get_flashed_messages() %}
@@ -13,33 +13,33 @@
 <div class="card">
   <p class="muted" style="margin:0 0 4px">{{ student.class_name }}</p>
   <p style="margin:0 0 14px;font-size:1.15rem;font-weight:600">{{ student.full_name }}</p>
-  <p class="total">Подтверждённые часы: <strong>{{ total_approved_hours }}</strong></p>
-  <a class="btn btn-primary" href="{{ url_for('student.new_entry') }}">Добавить запись</a>
+  <p class="total">{{ _("cabinet.approved_total") }} <strong>{{ total_approved_hours }}</strong></p>
+  <a class="btn btn-primary" href="{{ url_for('student.new_entry') }}">{{ _("cabinet.add") }}</a>
 </div>
 
 {% if entries %}
 <div class="card">
   <table class="data">
     <thead>
-      <tr><th>Период</th><th>Описание</th><th>Часы</th><th>Статус</th><th></th></tr>
+      <tr><th>{{ _("table.period") }}</th><th>{{ _("table.description") }}</th><th>{{ _("table.hours") }}</th><th>{{ _("table.status") }}</th><th></th></tr>
     </thead>
     <tbody>
       {% for entry in entries %}
       <tr>
-        <td data-label="Период">{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
-        <td data-label="Описание">
+        <td data-label="{{ _("table.period") }}">{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
+        <td data-label="{{ _("table.description") }}">
           {{ entry.description }}
-          {% if entry.admin_comment %}<div class="muted">Комментарий: {{ entry.admin_comment }}</div>{% endif %}
+          {% if entry.admin_comment %}<div class="muted">{{ _("comment.prefix") }} {{ entry.admin_comment }}</div>{% endif %}
         </td>
-        <td data-label="Часы">{{ entry.hours }}</td>
-        <td data-label="Статус"><span class="badge badge-{{ entry.status }}">{{ {'pending': 'на проверке', 'approved': 'подтверждено', 'rejected': 'отклонено'}.get(entry.status, entry.status) }}</span></td>
+        <td data-label="{{ _("table.hours") }}">{{ entry.hours }}</td>
+        <td data-label="{{ _("table.status") }}"><span class="badge badge-{{ entry.status }}">{{ {'pending': _('status.pending'), 'approved': _('status.approved'), 'rejected': _('status.rejected')}.get(entry.status, entry.status) }}</span></td>
         <td>
           {% if entry.status == 'pending' %}
           <div class="actions">
-            <a class="btn btn-small" href="{{ url_for('student.edit_entry', entry_id=entry.id) }}">Изменить</a>
+            <a class="btn btn-small" href="{{ url_for('student.edit_entry', entry_id=entry.id) }}">{{ _("action.edit") }}</a>
             <form class="inline" method="post" action="{{ url_for('student.delete_entry', entry_id=entry.id) }}">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn-small btn-danger">Удалить</button>
+              <button type="submit" class="btn-small btn-danger">{{ _("action.delete") }}</button>
             </form>
           </div>
           {% endif %}
@@ -50,6 +50,6 @@
   </table>
 </div>
 {% else %}
-  <div class="card"><p class="muted">Записей пока нет.</p></div>
+  <div class="card"><p class="muted">{{ _("cabinet.empty") }}</p></div>
 {% endif %}
 {% endblock %}

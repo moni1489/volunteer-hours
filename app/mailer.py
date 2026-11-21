@@ -7,12 +7,15 @@ from email.message import EmailMessage
 
 from flask import current_app
 
-SUBJECT = "Код входа на сайт учёта волонтёрских часов"
-BODY = (
-    "Ваш код для входа: {code}\n\n"
-    "Код действует 10 минут. Если вы не запрашивали код, просто проигнорируйте это письмо.\n"
-)
+from app.i18n import lookup, session_lang
+
 BREVO_URL = "https://api.brevo.com/v3/smtp/email"
+
+
+def _message(code: str) -> tuple[str, str]:
+    """Subject and body in the language of the current session (Russian when there is none)."""
+    lang = session_lang()
+    return lookup("mail.subject", lang), lookup("mail.body", lang).format(code=code)
 
 
 def send_code_email(to: str, code: str) -> None:
@@ -33,11 +36,12 @@ def send_code_email(to: str, code: str) -> None:
 
 def _send_via_brevo(api_key: str, to: str, code: str) -> None:
     sender = os.environ.get("BREVO_SENDER") or "volunteer.ukk2026@gmail.com"
+    subject, body = _message(code)
     payload = {
         "sender": {"email": sender},
         "to": [{"email": to}],
-        "subject": SUBJECT,
-        "textContent": BODY.format(code=code),
+        "subject": subject,
+        "textContent": body,
     }
     req = urllib.request.Request(
         BREVO_URL,
@@ -56,11 +60,12 @@ def _send_via_brevo(api_key: str, to: str, code: str) -> None:
 
 
 def _send_via_smtp(cfg, to: str, code: str) -> None:
+    subject, body = _message(code)
     msg = EmailMessage()
-    msg["Subject"] = SUBJECT
+    msg["Subject"] = subject
     msg["From"] = cfg["SMTP_USER"]
     msg["To"] = to
-    msg.set_content(BODY.format(code=code))
+    msg.set_content(body)
 
     with smtplib.SMTP(cfg["SMTP_HOST"], cfg["SMTP_PORT"], timeout=15) as smtp:
         smtp.starttls(context=ssl.create_default_context())
