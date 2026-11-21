@@ -11,6 +11,8 @@
 {% endwith %}
 
 <div class="card">
+  <p class="muted" style="margin:0 0 4px">{{ student.class_name }}</p>
+  <p style="margin:0 0 14px;font-size:1.15rem;font-weight:600">{{ student.full_name }}</p>
   <p class="total">Подтверждённые часы: <strong>{{ total_approved_hours }}</strong></p>
   <a class="btn btn-primary" href="{{ url_for('student.new_entry') }}">Добавить запись</a>
 </div>

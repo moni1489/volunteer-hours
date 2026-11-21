@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app import db
 from app.auth import student_required
-from app.models import VolunteerEntry
+from app.models import Student, VolunteerEntry
 from app.validation import validate_entry
 
 bp = Blueprint("student", __name__)
@@ -62,6 +62,7 @@ def cabinet():
     )
     return render_template(
         "cabinet.html",
+        student=db.session.get(Student, session["student_id"]),
         entries=entries,
         total_approved_hours=total_approved_hours,
     )
