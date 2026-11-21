@@ -147,7 +147,7 @@ def test_cabinet_shows_period(client, student_a):
 
 def test_new_entry_with_invalid_hours_is_not_saved(client, student_a):
     _login(client, student_a)
-    resp = client.post("/entries/new", data=_valid_form(hours="201"))
+    resp = client.post("/entries/new", data=_valid_form(hours="0"))
     assert resp.status_code == 200
     assert db.session.scalars(select(VolunteerEntry)).all() == []
 

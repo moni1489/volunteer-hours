@@ -3,13 +3,12 @@ from decimal import Decimal, InvalidOperation
 
 MAX_DESCRIPTION = 500
 MIN_HOURS = Decimal("0.5")
-MAX_HOURS = Decimal("200.0")
 HOURS_STEP = Decimal("0.5")
 
 DATE_ERROR = "Укажите дату не позже сегодняшней."
 PERIOD_ERROR = "Дата начала не может быть позже даты конца."
 DESCRIPTION_ERROR = f"Опишите работу (не более {MAX_DESCRIPTION} символов)."
-HOURS_ERROR = "Часы: от 0.5 до 200, с шагом 0.5."
+HOURS_ERROR = "Часы: не меньше 0.5, с шагом 0.5."
 
 
 def _parse_hours(hours_str: str) -> Decimal | None:
@@ -19,7 +18,7 @@ def _parse_hours(hours_str: str) -> Decimal | None:
         return None
     if not hours.is_finite():
         return None
-    if not (MIN_HOURS <= hours <= MAX_HOURS):
+    if hours < MIN_HOURS:
         return None
     if (hours / HOURS_STEP) != (hours / HOURS_STEP).to_integral_value():
         return None

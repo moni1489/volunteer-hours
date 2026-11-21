@@ -32,7 +32,7 @@ class VolunteerEntry(db.Model):
     date_start = db.Column(db.Date, nullable=False)
     date_end = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    hours = db.Column(db.Numeric(4, 1), nullable=False)
+    hours = db.Column(db.Numeric(10, 1), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="pending")
     admin_comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=_utcnow)
