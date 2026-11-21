@@ -20,9 +20,11 @@ def create_app(config: dict | None = None) -> Flask:
     migrate.init_app(app, db)
     from app.cli import register_commands
     from app.auth import bp as auth_bp
+    from app.student import bp as student_bp
 
     register_commands(app)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(student_bp)
     return app
 
 
