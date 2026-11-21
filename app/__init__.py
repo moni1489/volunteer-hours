@@ -9,7 +9,8 @@ migrate = Migrate()
 
 
 def create_app(config: dict | None = None) -> Flask:
-    app = Flask(__name__)
+    # Templates live in the project-root templates/ folder, one level above this package.
+    app = Flask(__name__, template_folder="../templates")
     app.config.from_object(Config)
     if config:
         app.config.update(config)
@@ -18,8 +19,10 @@ def create_app(config: dict | None = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     from app.cli import register_commands
+    from app.auth import bp as auth_bp
 
     register_commands(app)
+    app.register_blueprint(auth_bp)
     return app
 
 
