@@ -22,12 +22,27 @@ def create_app(config: dict | None = None) -> Flask:
     migrate.init_app(app, db)
     csrf.init_app(app)
     from app.cli import register_commands
+    from app.admin import bp as admin_bp
     from app.auth import bp as auth_bp
     from app.student import bp as student_bp
 
     register_commands(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(student_bp)
+    app.register_blueprint(admin_bp)
+
+    admin_login = app.config.get("ADMIN_LOGIN")
+    admin_password = app.config.get("ADMIN_PASSWORD")
+    if admin_login and admin_password:
+        from sqlalchemy import inspect
+
+        from app.bootstrap import ensure_admin
+        from app.models import Admin
+
+        with app.app_context():
+            # Skip before migrations have created the table, so `flask db upgrade` still works.
+            if inspect(db.engine).has_table(Admin.__tablename__):
+                ensure_admin(admin_login, admin_password)
     return app
 
 
