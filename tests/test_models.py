@@ -15,7 +15,8 @@ def test_create_student_and_pending_entry_defaults(app):
 
     entry = VolunteerEntry(
         student_id=student.id,
-        date=date(2026, 11, 20),
+        date_start=date(2026, 11, 20),
+        date_end=date(2026, 11, 20),
         description="Library helper",
         hours=Decimal("2.5"),
     )

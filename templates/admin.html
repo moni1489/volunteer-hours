@@ -41,14 +41,14 @@
     {% if rows %}
     <table>
       <thead>
-        <tr><th>Ученик</th><th>Класс</th><th>Дата</th><th>Описание</th><th>Часы</th><th>Статус</th><th>Решение</th></tr>
+        <tr><th>Ученик</th><th>Класс</th><th>Период</th><th>Описание</th><th>Часы</th><th>Статус</th><th>Решение</th></tr>
       </thead>
       <tbody>
         {% for entry, student in rows %}
         <tr>
           <td>{{ student.full_name }}</td>
           <td>{{ student.class_name }}</td>
-          <td>{{ entry.date.isoformat() }}</td>
+          <td>{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
           <td>
             {{ entry.description }}
             {% if entry.admin_comment %}<div class="muted">Комментарий: {{ entry.admin_comment }}</div>{% endif %}

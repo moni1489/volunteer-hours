@@ -39,7 +39,8 @@ def student_b(app):
 def _entry(student, status="pending", hours="1.0", description="Тестовая запись"):
     e = VolunteerEntry(
         student_id=student.id,
-        date=date(2026, 11, 1),
+        date_start=date(2026, 11, 1),
+        date_end=date(2026, 11, 1),
         description=description,
         hours=Decimal(hours),
         status=status,
@@ -162,6 +163,18 @@ def test_admin_list_filters_by_class(client, admin, student_a, student_b):
 
     assert "Работа класса А" in html
     assert "Работа класса Б" not in html
+
+
+def test_admin_list_shows_entry_period(client, admin, student_a):
+    entry = _entry(student_a)
+    entry.date_start = date(2026, 11, 3)
+    entry.date_end = date(2026, 11, 7)
+    db.session.commit()
+    _admin_login(client)
+
+    html = client.get("/admin").get_data(as_text=True)
+
+    assert "03.11.2026 — 07.11.2026" in html
 
 
 def test_ensure_admin_twice_does_not_duplicate(app):

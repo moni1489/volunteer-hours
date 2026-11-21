@@ -75,7 +75,7 @@ def index():
     query = (
         select(VolunteerEntry, Student)
         .join(Student, VolunteerEntry.student_id == Student.id)
-        .order_by(VolunteerEntry.date.desc(), VolunteerEntry.id.desc())
+        .order_by(VolunteerEntry.date_start.desc(), VolunteerEntry.id.desc())
     )
     if class_name:
         query = query.where(Student.class_name == class_name)

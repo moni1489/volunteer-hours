@@ -32,12 +32,12 @@
     {% if entries %}
     <table>
       <thead>
-        <tr><th>Дата</th><th>Описание</th><th>Часы</th><th>Статус</th><th></th></tr>
+        <tr><th>Период</th><th>Описание</th><th>Часы</th><th>Статус</th><th></th></tr>
       </thead>
       <tbody>
         {% for entry in entries %}
         <tr>
-          <td>{{ entry.date.isoformat() }}</td>
+          <td>{{ entry.date_start.strftime("%d.%m.%Y") }} — {{ entry.date_end.strftime("%d.%m.%Y") }}</td>
           <td>
             {{ entry.description }}
             {% if entry.admin_comment %}<div class="muted">Комментарий: {{ entry.admin_comment }}</div>{% endif %}

@@ -36,7 +36,8 @@ def student_b(app):
 def _entry(student, status="pending", hours="1.0", description="Тестовая запись"):
     e = VolunteerEntry(
         student_id=student.id,
-        date=date(2026, 11, 1),
+        date_start=date(2026, 11, 1),
+        date_end=date(2026, 11, 1),
         description=description,
         hours=Decimal(hours),
         status=status,
@@ -52,7 +53,7 @@ def _login(client, student):
 
 
 def _valid_form(**overrides):
-    data = {"date": "2026-11-20", "description": "Уборка двора", "hours": "2.5"}
+    data = {"date_start": "2026-11-20", "date_end": "2026-11-20", "description": "Уборка двора", "hours": "2.5"}
     data.update(overrides)
     return data
 
@@ -107,7 +108,41 @@ def test_new_entry_is_created_pending_for_session_student(client, student_a):
     assert e.student_id == student_a.id
     assert e.status == "pending"
     assert e.hours == Decimal("2.5")
-    assert e.date == date(2026, 11, 20)
+    assert e.date_start == date(2026, 11, 20)
+    assert e.date_end == date(2026, 11, 20)
+
+
+def test_new_entry_saves_period(client, student_a):
+    _login(client, student_a)
+    resp = client.post("/entries/new", data=_valid_form(date_start="2026-11-10", date_end="2026-11-14"))
+    assert resp.status_code == 302
+    e = db.session.scalars(select(VolunteerEntry)).one()
+    assert e.date_start == date(2026, 11, 10)
+    assert e.date_end == date(2026, 11, 14)
+
+
+def test_new_entry_with_start_after_end_is_not_saved(client, student_a):
+    _login(client, student_a)
+    resp = client.post("/entries/new", data=_valid_form(date_start="2026-11-20", date_end="2026-11-10"))
+    assert resp.status_code == 200
+    assert db.session.scalars(select(VolunteerEntry)).all() == []
+
+
+def test_new_entry_with_future_end_date_is_not_saved(client, student_a):
+    _login(client, student_a)
+    resp = client.post("/entries/new", data=_valid_form(date_end="2099-01-01"))
+    assert resp.status_code == 200
+    assert db.session.scalars(select(VolunteerEntry)).all() == []
+
+
+def test_cabinet_shows_period(client, student_a):
+    e = _entry(student_a, description="период")
+    e.date_start = date(2026, 11, 3)
+    e.date_end = date(2026, 11, 7)
+    db.session.commit()
+    _login(client, student_a)
+    body = client.get("/cabinet").get_data(as_text=True)
+    assert "03.11.2026 — 07.11.2026" in body
 
 
 def test_new_entry_with_invalid_hours_is_not_saved(client, student_a):

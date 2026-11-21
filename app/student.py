@@ -31,7 +31,8 @@ def _own_entry(entry_id: int) -> VolunteerEntry:
 
 def _form_values(form) -> dict:
     return {
-        "date": form.get("date", ""),
+        "date_start": form.get("date_start", ""),
+        "date_end": form.get("date_end", ""),
         "description": form.get("description", ""),
         "hours": form.get("hours", ""),
     }
@@ -54,7 +55,7 @@ def cabinet():
     entries = db.session.scalars(
         select(VolunteerEntry)
         .where(VolunteerEntry.student_id == session["student_id"])
-        .order_by(VolunteerEntry.date.desc(), VolunteerEntry.id.desc())
+        .order_by(VolunteerEntry.date_start.desc(), VolunteerEntry.id.desc())
     ).all()
     total_approved_hours = sum(
         (e.hours for e in entries if e.status == "approved"), Decimal("0")
@@ -69,16 +70,20 @@ def cabinet():
 @bp.route("/entries/new", methods=["GET", "POST"])
 @student_required
 def new_entry():
-    values = {"date": date.today().isoformat(), "description": "", "hours": ""}
+    today = date.today().isoformat()
+    values = {"date_start": today, "date_end": today, "description": "", "hours": ""}
     errors: dict = {}
     if request.method == "POST":
         values = _form_values(request.form)
-        cleaned, errors = validate_entry(values["date"], values["description"], values["hours"], date.today())
+        cleaned, errors = validate_entry(
+            values["date_start"], values["date_end"], values["description"], values["hours"], date.today()
+        )
         if not errors:
             db.session.add(
                 VolunteerEntry(
                     student_id=session["student_id"],
-                    date=cleaned["date"],
+                    date_start=cleaned["date_start"],
+                    date_end=cleaned["date_end"],
                     description=cleaned["description"],
                     hours=cleaned["hours"].quantize(TENTH),
                     status="pending",
@@ -105,16 +110,20 @@ def edit_entry(entry_id: int):
         return redirect(url_for("student.cabinet"))
 
     values = {
-        "date": entry.date.isoformat(),
+        "date_start": entry.date_start.isoformat(),
+        "date_end": entry.date_end.isoformat(),
         "description": entry.description,
         "hours": str(entry.hours),
     }
     errors: dict = {}
     if request.method == "POST":
         values = _form_values(request.form)
-        cleaned, errors = validate_entry(values["date"], values["description"], values["hours"], date.today())
+        cleaned, errors = validate_entry(
+            values["date_start"], values["date_end"], values["description"], values["hours"], date.today()
+        )
         if not errors:
-            entry.date = cleaned["date"]
+            entry.date_start = cleaned["date_start"]
+            entry.date_end = cleaned["date_end"]
             entry.description = cleaned["description"]
             entry.hours = cleaned["hours"].quantize(TENTH)
             db.session.commit()

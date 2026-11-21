@@ -19,15 +19,19 @@
     <h1>{{ 'Изменить запись' if entry else 'Новая запись' }}</h1>
     <form method="post" action="{{ action }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="date">Дата</label>
-      <input id="date" name="date" type="date" required value="{{ values.date }}">
-      {% if errors.date %}<p class="error">{{ errors.date }}</p>{% endif %}
+      <label for="date_start">Начало периода</label>
+      <input id="date_start" name="date_start" type="date" required value="{{ values.date_start }}">
+      {% if errors.date_start %}<p class="error">{{ errors.date_start }}</p>{% endif %}
+
+      <label for="date_end">Конец периода</label>
+      <input id="date_end" name="date_end" type="date" required value="{{ values.date_end }}">
+      {% if errors.date_end %}<p class="error">{{ errors.date_end }}</p>{% endif %}
 
       <label for="description">Описание работы (до 500 символов)</label>
       <textarea id="description" name="description" required maxlength="500">{{ values.description }}</textarea>
       {% if errors.description %}<p class="error">{{ errors.description }}</p>{% endif %}
 
-      <label for="hours">Часы (от 0.5 до 12, шаг 0.5)</label>
+      <label for="hours">Часы</label>
       <input id="hours" name="hours" type="text" inputmode="decimal" required value="{{ values.hours }}">
       {% if errors.hours %}<p class="error">{{ errors.hours }}</p>{% endif %}
 
