@@ -229,5 +229,16 @@
   <main class="page {% block page_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </main>
+  <script>
+    // Submit each form only once: a second submit would reuse an already-used login code.
+    document.querySelectorAll("form[method=post]").forEach(function (form) {
+      form.addEventListener("submit", function (e) {
+        if (form.dataset.sent) { e.preventDefault(); return; }
+        form.dataset.sent = "1";
+        var btn = form.querySelector("button[type=submit]");
+        if (btn) { btn.disabled = true; }
+      });
+    });
+  </script>
 </body>
 </html>
